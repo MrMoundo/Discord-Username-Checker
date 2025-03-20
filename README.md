@@ -35,7 +35,7 @@ Discord Username's availability checker.
 
 
 
-> - This repository is licensed under a **NON-COMMERCIAL USE.** <a href="https://github.com/suenerve/Discord-Username-Checker/blob/main/LICENSE">READ here.</a>
+> - This repository is licensed under a **NON-COMMERCIAL USE.** <a href="https://github.com/MrMoundo/Discord-Username-Checker/blob/main/LICENSE">READ here.</a>
 
 - I **demand** my credits to the code wherever it's used.
 - Spamming Discord's API is against TOS, You may get your account suspended/rate limited and I am not responsible.
