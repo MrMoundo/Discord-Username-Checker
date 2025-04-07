@@ -20,6 +20,7 @@ Discord Username's availability checker.
 - Open `config.ini`
 - Paste your account's token in front of the equal symbol `TOKEN`
 - Configure DSV as how you'd like (`config.ini`)
+- Run `DownloadRequirements.bat`
 - Run `dsv.py` 
 
 > - For adding a specific list of usernames, create a file named `usernames.txt` in the same running directory as `dsv.py` and list your usernames there, separating them by a new line.
