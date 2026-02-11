@@ -15,7 +15,7 @@ Discord Username's availability checker.
 
 # How to use
 - Have <a href="https://www.python.org/">Python</a> installed.
-- First clone the repository or <a href="https://mrmoundo.github.io/ChillaxyStore/](https://github.com/MrMoundo/Discord-Username-Checker/archive/refs/heads/main.zip">download it as .zip</a>
+- First clone the repository or <a href="https://github.com/MrMoundo/Discord-Username-Checker/archive/refs/heads/main.zip">download it as .zip</a>
 - Install the required libraries, by running : ```pip install -r requirements.txt``` or `pip3 install -r requirements.txt` in your command line.
 - Open `config.ini`
 - Paste your account's token in front of the equal symbol `TOKEN`
