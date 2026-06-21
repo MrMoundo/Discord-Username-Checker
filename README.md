@@ -46,10 +46,6 @@ Discord Username's availability checker.
 # Moundo
 Discord Username's availability checker.
 
-## Requirements
-- The account using the token must have the following role in the server:
-  - **Role ID**: `1352081296154824744`
-    - **Server**: https://discord.gg/HCvq5d83ZU
 ## Credits
 - Original tool developed by [suenerve](https://github.com/suenerve).
 - Modifications by [Moundo](https://github.com/MrMoundo).
