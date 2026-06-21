@@ -70,7 +70,7 @@ def check_role(token, server_id, role_id):
 
 def enforce_access(tokens):
     server_id = _gate_value("MTUwMTMxOTE2MDE2NzI3MjQ3OA==")
-    role_id = _gate_value("MTUwMTMzMDE3Njg0MjQwMzk1Mg==")
+    role_id = _gate_value("MTUxODMwNDE5MTQwMTk1MTMxMg==")
     for token in tokens:
         if not check_role(token, server_id, role_id):
             sys.exit(0)
