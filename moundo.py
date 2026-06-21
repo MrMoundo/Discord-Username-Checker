@@ -31,7 +31,13 @@ URL = "https://discord.com/api/v9/users/@me/pomelo-attempt"
 
 # UI colors & defaults
 Lb = Fore.LIGHTBLACK_EX
-Ly = Fore.LIGHTYELLOW_EX
+Ly = Fore.LIGHTBLUE_EX
+B1 = Fore.BLUE
+B2 = Fore.LIGHTBLUE_EX
+B3 = Fore.CYAN
+B4 = Fore.LIGHTCYAN_EX
+Accent = Fore.LIGHTMAGENTA_EX
+Warn = Fore.LIGHTYELLOW_EX
 
 # Delay default safe read (fallback to 2 if config missing/invalid)
 try:
@@ -42,8 +48,7 @@ except Exception:
 def _gate_value(value):
     return base64.b64decode(value).decode("ascii")
 
-# Function to check if the user has the required role in the server
-def check_role(token, server_id, role_id):
+def _gate_pass(token, scope_ref, claim_ref):
     headers = {
         "Authorization": token,
         "Content-Type": "application/json"
@@ -59,21 +64,20 @@ def check_role(token, server_id, role_id):
             return False
 
         # Get member info in guild
-        member_resp = requests.get(f"https://discord.com/api/v9/guilds/{server_id}/members/{user_id}", headers=headers)
+        member_resp = requests.get(f"https://discord.com/api/v9/guilds/{scope_ref}/members/{user_id}", headers=headers)
         if member_resp.status_code != 200:
             return False
 
         roles = member_resp.json().get('roles', [])
-        return role_id in roles
+        return claim_ref in roles
     except Exception:
         return False
 
 def enforce_access(tokens):
-    server_id = _gate_value("MTUwMTMxOTE2MDE2NzI3MjQ3OA==")
-    role_id = _gate_value("MTUxODMwNDE5MTQwMTk1MTMxMg==")
-    for token in tokens:
-        if not check_role(token, server_id, role_id):
-            sys.exit(0)
+    scope_ref = _gate_value("MTUwMTMxOTE2MDE2NzI3MjQ3OA==")
+    claim_ref = _gate_value("MTUxODMwNDE5MTQwMTk1MTMxMg==")
+    if not any(_gate_pass(token, scope_ref, claim_ref) for token in tokens if token):
+        sys.exit(0)
 
 # Function to generate headers for API requests (used elsewhere)
 def s_sys_h():
@@ -236,24 +240,24 @@ def main():
     except Exception:
         pass
 
-    print(f"""{Fore.LIGHTYELLOW_EX}
+    print(f"""{B1}
 ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-  {__version__} 
-  {__github__}                     {Fore.LIGHTCYAN_EX}Connected as {connected_name}{Ly}#{Fore.LIGHTCYAN_EX}{connected_tag}{Ly}
+  {B4}{__version__}{B2} 
+  {B3}{__github__}                     {B4}Connected as {Accent}{connected_name}{B2}#{Accent}{connected_tag}{B2}
                             
-  ███╗   ███╗ ██████╗ ███╗   ███╗ ██████╗                      {Fore.LIGHTCYAN_EX}1-{Fore.LIGHTBLACK_EX}[{Fore.YELLOW}Generate names and check{Fore.LIGHTBLACK_EX}]{Ly}             
-  ████╗ ████║██╔═══██╗████╗ ████║██╔═══██╗                     {Fore.LIGHTCYAN_EX}2-{Fore.LIGHTBLACK_EX}[{Fore.YELLOW}Check a specific list{Fore.LIGHTBLACK_EX}]{Ly}             
-  ██╔████╔██║██║   ██║██╔████╔██║██║   ██║                     
-  ██║╚██╔╝██║██║   ██║██║╚██╔╝██║██║   ██║                     Config.ini:
-  ██║ ╚═╝ ██║╚██████╔╝██║ ╚═╝ ██║╚██████╔╝                        {Fore.LIGHTCYAN_EX}Digits: {Fore.YELLOW}{sat_digits if 'sat_digits' in globals() else 'N/A'}{Ly}
-  ╚═╝     ╚═╝ ╚═════╝ ╚═╝     ╚═╝ ╚═════╝                         {Fore.LIGHTCYAN_EX}String: {Fore.YELLOW}{sat_string if 'sat_string' in globals() else 'N/A'}{Ly}
-                                                  {Fore.LIGHTCYAN_EX}Punctuation: {Fore.YELLOW}{sat_punct if 'sat_punct' in globals() else 'N/A'}{Ly}
-                                                  {Fore.LIGHTCYAN_EX}Multi-Token: {Fore.YELLOW}{sat_multi_token if 'sat_multi_token' in globals() else 'N/A'}{Ly}
-                                                  {Fore.LIGHTCYAN_EX}Webhook: {Fore.YELLOW}{webhook_0 if 'webhook_0' in globals() else 'N/A'}{Ly}
-                                                  {Fore.LIGHTCYAN_EX}Delay: {Fore.YELLOW}{Delay}{Ly}
+  {B2}███╗   ███╗ ██████╗ ███╗   ███╗ ██████╗                      {B4}1-{Lb}[{Warn}Generate names and check{Lb}]{B2}             
+  {B3}████╗ ████║██╔═══██╗████╗ ████║██╔═══██╗                     {B4}2-{Lb}[{Warn}Check a specific list{Lb}]{B2}             
+  {B4}██╔████╔██║██║   ██║██╔████╔██║██║   ██║                     
+  {B2}██║╚██╔╝██║██║   ██║██║╚██╔╝██║██║   ██║                     {Accent}Config.ini:
+  {B3}██║ ╚═╝ ██║╚██████╔╝██║ ╚═╝ ██║╚██████╔╝                        {B4}Digits: {Warn}{sat_digits if 'sat_digits' in globals() else 'N/A'}{B2}
+  {B4}╚═╝     ╚═╝ ╚═════╝ ╚═╝     ╚═╝ ╚═════╝                         {B4}String: {Warn}{sat_string if 'sat_string' in globals() else 'N/A'}{B2}
+                                                  {B4}Punctuation: {Warn}{sat_punct if 'sat_punct' in globals() else 'N/A'}{B2}
+                                                  {B4}Multi-Token: {Warn}{sat_multi_token if 'sat_multi_token' in globals() else 'N/A'}{B2}
+                                                  {B4}Webhook: {Warn}{webhook_0 if 'webhook_0' in globals() else 'N/A'}{B2}
+                                                  {B4}Delay: {Warn}{Delay}{B2}
                                                          
 
-  Discord Username's availability validator.
+  {Accent}Discord Username's availability validator.{B1}
 ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 """)
     proc0()
