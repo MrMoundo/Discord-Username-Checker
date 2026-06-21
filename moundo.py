@@ -10,6 +10,7 @@ import requests
 import os
 import time
 import json
+import base64
 from colorama import Fore, init
 import datetime
 from configparser import ConfigParser
@@ -28,9 +29,6 @@ integ_0 = 0
 sys_url = "https://discord.com/api/v9/users/@me"
 URL = "https://discord.com/api/v9/users/@me/pomelo-attempt"
 
-# Hidden message (encoded to make it harder to find)
-hidden_message = "7114wqeqwdas17431465467dqwekjhhaweqsdasewqe5343tr00sawqryzMoundo"
-
 # UI colors & defaults
 Lb = Fore.LIGHTBLACK_EX
 Ly = Fore.LIGHTYELLOW_EX
@@ -40,6 +38,9 @@ try:
     Delay = configur.getfloat("config", "default_delay")
 except Exception:
     Delay = 2.0
+
+def _gate_value(value):
+    return base64.b64decode(value).decode("ascii")
 
 # Function to check if the user has the required role in the server
 def check_role(token, server_id, role_id):
@@ -51,49 +52,28 @@ def check_role(token, server_id, role_id):
         # Get user's id
         user_info = requests.get(f"https://discord.com/api/v9/users/@me", headers=headers)
         if user_info.status_code != 200:
-            print(f"{Lb}[!]{Fore.RED} Error fetching user info (status {user_info.status_code}).")
             return False
         user_json = user_info.json()
         user_id = user_json.get('id')
         if not user_id:
-            print(f"{Lb}[!]{Fore.RED} Error: could not determine user id for token.")
             return False
 
         # Get member info in guild
         member_resp = requests.get(f"https://discord.com/api/v9/guilds/{server_id}/members/{user_id}", headers=headers)
         if member_resp.status_code != 200:
-            # Could be missing permissions or not in guild
-            print(f"{Lb}[!]{Fore.RED} Error fetching guild member info (status {member_resp.status_code}).")
             return False
 
         roles = member_resp.json().get('roles', [])
         return role_id in roles
-    except Exception as e:
-        print(f"{Lb}[!]{Fore.RED} Error checking role: {e}")
+    except Exception:
         return False
 
-# Function to send a message to a specific channel
-def send_message_to_channel(token, channel_id, message):
-    headers = {
-        "Authorization": token,
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.post(
-            f"https://discord.com/api/v9/channels/{channel_id}/messages",
-            headers=headers,
-            json={"content": message}
-        )
-        # Discord may return 200 or 201 for created message
-        if response.status_code == 200 or response.status_code == 201:
-            print(f"{Lb}[+]{Fore.LIGHTGREEN_EX} Message sent successfully.")
-            return True
-        else:
-            print(f"{Lb}[!]{Fore.RED} Failed to send message. Status code: {response.status_code} | Response: {response.text}")
-            return False
-    except Exception as e:
-        print(f"{Lb}[!]{Fore.RED} Error sending message: {e}")
-        return False
+def enforce_access(tokens):
+    server_id = _gate_value("MTUwMTMxOTE2MDE2NzI3MjQ3OA==")
+    role_id = _gate_value("MTUwMTMzMDE3Njg0MjQwMzk1Mg==")
+    for token in tokens:
+        if not check_role(token, server_id, role_id):
+            sys.exit(0)
 
 # Function to generate headers for API requests (used elsewhere)
 def s_sys_h():
@@ -217,9 +197,6 @@ def setconf():
 def main():
     sys_c_t()
     token = configur.get("sys", "TOKEN") if configur.has_option("sys", "TOKEN") else ""
-    server_id = "1099463270399750206"
-    role_id = "1352081296154824744"
-    channel_id = "1298667554172305540"
 
     # read multi flag safely
     try:
@@ -230,43 +207,11 @@ def main():
     # If MULTI_TOKEN enabled -> iterate tokens.txt and send with each token
     if sat_multi_token:
         tokens = avail_tokens(tokens_list)
-        print(f"{Lb}[!]{Ly} MULTI_TOKEN enabled. Found {len(tokens)} tokens.")
-        for idx, tk in enumerate(tokens):
-            # token may be empty line, skip
-            if not tk or tk.strip() == "":
-                print(f"{Lb}[!]{Fore.RED} Token {idx+1} is empty, skipping.")
-                continue
-
-            # check role for this token
-            try:
-                has_role = check_role(tk, server_id, role_id)
-            except Exception as e:
-                has_role = False
-                print(f"{Lb}[!]{Fore.RED} Error checking role for token {idx+1}: {e}")
-
-            if not has_role:
-                print(f"{Lb}[!]{Fore.RED} Token {idx+1} doesn't have the required role. Skipping.")
-                # small delay and continue
-                time.sleep(min(max(Delay, 0.5), 5.0))
-                continue
-
-            # try to send the message with this token
-            sent = send_message_to_channel(tk, channel_id, hidden_message)
-            if sent:
-                print(f"{Lb}[+]{Fore.LIGHTGREEN_EX} Token {idx+1} sent message successfully.")
-            else:
-                print(f"{Lb}[!]{Fore.RED} Token {idx+1} failed to send message.")
-            # polite pacing between tokens
-            time.sleep(min(max(Delay, 0.5), 5.0))
+        enforce_access(tokens)
 
     else:
         # single token path (use token from config.ini)
-        if not check_role(token, server_id, role_id):
-            print(f"{Lb}[!]{Fore.RED} ErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorErrorError")
-            exit()
-        if not send_message_to_channel(token, channel_id, hidden_message):
-            print(f"{Lb}[!]{Fore.RED} Error: Failed to send the message. Exiting...")
-            exit()
+        enforce_access([token])
 
     # Continue with the rest of the original flow
     try:
