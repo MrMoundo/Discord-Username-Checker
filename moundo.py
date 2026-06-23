@@ -134,6 +134,7 @@ def sys_c_t():
 available_usernames = []
 av_list = os.path.join(dir_path, "available_usernames.txt")
 sample_0 = r"_."
+semi_three_punctuation = r"_."
 
 # Function to set configuration values
 def setconf():
@@ -145,6 +146,7 @@ def setconf():
     global sat_digits
     global sat_multi_token
     global sat_punct
+    global sat_semi_three
     global sat_webhook
 
     try:
@@ -166,6 +168,11 @@ def setconf():
         sat_punct = configur.getboolean("config", "punctuation")
     except Exception:
         sat_punct = True
+
+    try:
+        sat_semi_three = configur.getboolean("config", "semi_three")
+    except Exception:
+        sat_semi_three = False
 
     try:
         sat_multi_token = configur.getboolean("sys", "MULTI_TOKEN")
@@ -252,6 +259,7 @@ def main():
   {B3}██║ ╚═╝ ██║╚██████╔╝██║ ╚═╝ ██║╚██████╔╝                        {B4}Digits: {Warn}{sat_digits if 'sat_digits' in globals() else 'N/A'}{B2}
   {B4}╚═╝     ╚═╝ ╚═════╝ ╚═╝     ╚═╝ ╚═════╝                         {B4}String: {Warn}{sat_string if 'sat_string' in globals() else 'N/A'}{B2}
                                                   {B4}Punctuation: {Warn}{sat_punct if 'sat_punct' in globals() else 'N/A'}{B2}
+                                                  {B4}Semi-Three: {Warn}{sat_semi_three if 'sat_semi_three' in globals() else 'N/A'}{B2}
                                                   {B4}Multi-Token: {Warn}{sat_multi_token if 'sat_multi_token' in globals() else 'N/A'}{B2}
                                                   {B4}Webhook: {Warn}{webhook_0 if 'webhook_0' in globals() else 'N/A'}{B2}
                                                   {B4}Delay: {Warn}{Delay}{B2}
@@ -498,10 +506,23 @@ def opt1func(v1, v2):
     print(f"\n{Lb}[=]{Fore.LIGHTGREEN_EX} Done. {Ly}{len(available_usernames)}{Fore.LIGHTGREEN_EX} Available usernames, are saved in the following file: '{av_list}' .")
     exit()
 
+# Function to generate semi-three usernames like d.hp, dhp., or d_ph
+def get_semi_three_name() -> str:
+    letters_pool = string_0 + digits_0
+    if len(letters_pool) < 3:
+        letters_pool = string.ascii_lowercase + string.digits
+
+    name_parts = random.sample(letters_pool, 3)
+    symbol_position = random.randint(0, 3)
+    name_parts.insert(symbol_position, random.choice(semi_three_punctuation))
+    return ''.join(name_parts)
+
 # Function to generate random names
 def get_names(length: int) -> str:
     # ensure string_0/digits_0/punctuation_0 exist (setconf is expected to run)
     try:
+        if sat_semi_three and length == 4:
+            return get_semi_three_name()
         return ''.join(random.sample(string_0 + digits_0 + punctuation_0, length))
     except Exception:
         # fallback
